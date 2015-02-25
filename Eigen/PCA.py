@@ -21,14 +21,13 @@ assert class2_sample.shape == (3,20), "The matrix has to be of the dimensions 3x
 print "Sample data loaded, now plotting sample values generated"
 ## Plot the samples
 
-#fig = plt.figure(figsize=(8,8))
-#ax = fig.add_subplot(111, projection='3d')
-#plt.rcParams['legend.fontsize'] = 10
-#ax.plot(class1_sample[0,:], class1_sample[1,:],class1_sample[2,:], 'o', markersize=8, color='black', alpha=0.9, label='class1')
-#ax.plot(class2_sample[0,:], class2_sample[1,:],class2_sample[2,:], '^', markersize=8, color='orange', alpha=0.7, label='class2')
-#plt.title('Samples for class 1 and class 2')
-#ax.legend(loc='lower left')
-#plt.show()
+# fig = plt.figure(figsize=(8,8))
+# ax = fig.add_subplot(111, projection='3d')
+# plt.rcParams['legend.fontsize'] = 10
+# ax.plot(class1_sample[0,:], class1_sample[1,:],class1_sample[2,:], 'o', markersize=8, color='black', alpha=0.9, label='class1')
+# ax.plot(class2_sample[0,:], class2_sample[1,:],class2_sample[2,:], '^', markersize=8, color='orange', alpha=0.7, label='class2')
+# plt.title('Samples for class 1 and class 2')
+# ax.legend(loc='lower left')
 
 # Step 1 : We don't need class labels in pca, as it's based on higher variance inference , so let's merge both samples
 
@@ -70,17 +69,17 @@ class SpaceArrow(FancyArrowPatch):
         FancyArrowPatch.draw(self, renderer)
 
 
-fig  = plt.figure(figsize=(7,7))
-ax = fig.add_subplot(111, projection='3d')
-ax.plot(merged_samples[0,:],merged_samples[1,:],merged_samples[2,:],'o', markersize=8, color='green', alpha=0.3)
-ax.plot([mean_x],[mean_y],[mean_z],'o',  markersize=10, color='blue', alpha=0.5)
+#fig  = plt.figure(figsize=(7,7))
+#ax = fig.add_subplot(111, projection='3d')
+#ax.plot(merged_samples[0,:],merged_samples[1,:],merged_samples[2,:],'o', markersize=8, color='green', alpha=0.3)
+#ax.plot([mean_x],[mean_y],[mean_z],'o',  markersize=10, color='blue', alpha=0.5)
 
-for v in eig_vec:
-    a = SpaceArrow([mean_x, v[0]], [mean_y, v[1]],[mean_z, v[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
-    ax.add_artist(a)
-ax.set_xlabel('x_values')
-ax.set_ylabel('y_values')
-ax.set_zlabel('z_values')
+#for v in eig_vec:
+#    a = SpaceArrow([mean_x, v[0]], [mean_y, v[1]],[mean_z, v[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
+#    ax.add_artist(a)
+#ax.set_xlabel('x_values')
+#ax.set_ylabel('y_values')
+#ax.set_zlabel('z_values')
 
 plt.title('Eigen vectors')
 
@@ -91,8 +90,27 @@ plt.title('Eigen vectors')
 eig_pairs = [(np.abs(eig_val[i]),eig_vec[:,i]) for i in range(len(eig_val))]
 eig_pairs.sort()
 eig_pairs.reverse()
-for i in eig_pairs:
-    print(i[0])
+
+# Step 6. Dimension reduction let's take only first two eigen vectors [that is dimension reduced from 3-d to 2-d]
+matrix_w = np.hstack((eig_pairs[0][1].reshape(3,1), eig_pairs[1][1].reshape(3,1)))
+print matrix_w
+
+# Step 7. Transform the samples onto the new subspace W.t * x
+
+transformed = matrix_w.T.dot(merged_samples)
+assert transformed.shape == (2,40), "The matrix is not 2x40 dimensional."
+
+# Plot the new transformed values
+plt.plot(transformed[0,0:20], transformed[1,0:20],'o', markersize=7, color='blue', alpha=0.5, label='class1')
+plt.plot(transformed[0,20:40], transformed[1,20:40],'^', markersize=7, color='red', alpha=0.5, label='class2')
+plt.xlim([-4,4])
+plt.ylim([-4,4])
+plt.xlabel('x_values')
+plt.ylabel('y_values')
+plt.legend()
+plt.title('Transformed samples with class labels')
+plt.show()
+
 
 
 
